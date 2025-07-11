@@ -1,0 +1,20 @@
+package sqlite3-node
+version      = 0.0.1
+authors      = "Andre Videla"
+readme       = "README.md"
+license      = "BSD-3 Clause"
+brief        = "Node wrapper for the sqlite3 library"
+
+depends = sqlite3
+        , rio
+        , continuation-monad
+
+sourcedir = "src"
+
+modules = Control.Node.Sqlite3
+
+main = Test
+
+opts = "--cg node"
+
+executable = sql

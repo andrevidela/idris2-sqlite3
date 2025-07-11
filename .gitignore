@@ -3,3 +3,4 @@ lib/
 support/idris2-sqlite3.o
 support/libsqlite3-idris
 *.*~
+Node_modules

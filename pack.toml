@@ -20,14 +20,20 @@ ipkg   = "docs.ipkg"
 # commit = "latest:main"
 # ipkg   = "quantifiers-extra.ipkg"
 
-[custom.all.array]
-type   = "github"
-url    = "https://github.com/stefan-hoeck/idris2-array"
-commit = "latest:main"
-ipkg   = "array.ipkg"
+# [custom.all.array]
+# type   = "github"
+# url    = "https://github.com/stefan-hoeck/idris2-array"
+# commit = "latest:main"
+# ipkg   = "array.ipkg"
+#
+# [custom.all.bytestring]
+# type   = "github"
+# url    = "https://github.com/stefan-hoeck/idris2-bytestring"
+# commit = "latest:main"
+# ipkg   = "bytestring.ipkg"
 
-[custom.all.bytestring]
+[custom.all.continuation-monad]
 type   = "github"
-url    = "https://github.com/stefan-hoeck/idris2-bytestring"
+url    = "https://gitlab.com/avidela/continuation-monad"
 commit = "latest:main"
-ipkg   = "bytestring.ipkg"
+ipkg   = "continuation-monad.ipkg"
