@@ -68,7 +68,7 @@ paramsToJS = map ?paramsToJS_rhs
     param2JS (P name INTEGER value) = int64_to_JS value
     param2JS (P name REAL value) = double_to_JS value
 
-export
+total export
 bindParams : (db : DBNode) => (stmt : StmtNode) => List Parameter -> IO StmtNode
 bindParams ps = primIO $ node__bind_all db stmt (list2JS $ paramsToJS ps)
 

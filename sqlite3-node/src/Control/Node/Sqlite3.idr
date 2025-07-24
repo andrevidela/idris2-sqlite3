@@ -30,32 +30,24 @@ withBoundStmt st f =
   let (ps, str) := runState init st
   in Sqlite3.withStmt {a} str (bindParams ps.args *> f)
 
-{-
 
-export
-step : (s : Stmt) => App es SqlResult
-step @{s} = liftIO $ sqliteStep s
-
-export
-commit : DBNode => ParamStmt -> App es ()
-commit st = withBoundStmt st (ignore step)
 
 ||| Executes the given SQL command.
 export %inline
-cmd : DB => Cmd t -> App es ()
-cmd = commit . encodeCmd
+cmd : DBNode => Cmd t -> IO ()
+cmd c = withBoundStmt (encodeCmd c) (pure ())
+
+||| Prepare an SQL statement and use it to run the given effectful computation.
+|||
+||| This comes with the guarantees that the statement is properly
+||| finalized at the end.
+|||
+||| This works just like `withStmt` but it also bind the given arguments.
+export
+bindParams : DBNode => ParamStmt => List Parameter -> IO ()
+bindParams ps = ignore $ FFI.Sqlite3.bindParams ps
 
 {-
-
-  ||| Prepare an SQL statement and use it to run the given effectful computation.
-  |||
-  ||| This comes with the guarantees that the statement is properly
-  ||| finalized at the end.
-  |||
-  ||| This works just like `withStmt` but it also bind the given arguments.
-  export
-  bindParams : DB => Stmt => List Parameter -> App es ()
-  bindParams ps = injectIO (sqliteBind ps)
 
   ||| Prepare an SQL statement and use it to run the given effectful computation.
   |||
