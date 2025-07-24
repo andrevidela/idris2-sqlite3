@@ -9,29 +9,43 @@ import public Node.FFI.Sqlite3
 
 %default total
 
-withDB : String -> (DBNode => ContT () IO ()) -> ContT () IO ()
+export
+withDB : String -> (DBNode => IO a) -> IO a
 withDB path op = do
-  Right db <- sqliteOpen path
-  | Left err => putStrLn "error: \{show err}"
+  db <- sqlite_open path
   v <- op @{db}
-  result <- sqliteClose db
+  result <- sqlite_close db
   pure v
 
-withStmt : DBNode => String -> (Stmt => ContT () IO ()) -> ContT () IO ()
+export
+withStmt : DBNode => String -> (StmtNode => IO a) -> IO a
 withStmt str f = do
-  ?withStmt_rhs
+  stmt <- sqlite_prepare str
+  res <- f @{stmt}
+  pure res
+
+export
+withBoundStmt : DBNode => ParamStmt -> (StmtNode => IO a) -> IO a
+withBoundStmt st f =
+  let (ps, str) := runState init st
+  in Sqlite3.withStmt {a} str (bindParams ps.args *> f)
 
 {-
 
-  ||| Prepare an SQL statement and use it to run the given effectful computation.
-  |||
-  ||| This comes with the guarantees that the statement is properly
-  ||| finalized at the end.
-  export
-  withStmt : DB => String -> (Stmt => App es a) -> App es a
-  withStmt str f = do
-    stmt <- injectIO $ sqlitePrepare str
-    finally (liftIO $ sqliteFinalize' stmt) (f @{stmt})
+export
+step : (s : Stmt) => App es SqlResult
+step @{s} = liftIO $ sqliteStep s
+
+export
+commit : DBNode => ParamStmt -> App es ()
+commit st = withBoundStmt st (ignore step)
+
+||| Executes the given SQL command.
+export %inline
+cmd : DB => Cmd t -> App es ()
+cmd = commit . encodeCmd
+
+{-
 
   ||| Prepare an SQL statement and use it to run the given effectful computation.
   |||
@@ -60,14 +74,6 @@ withStmt str f = do
   step : (s : Stmt) => App es SqlResult
   step @{s} = liftIO $ sqliteStep s
 
-  ||| Prepares, executes and finalizes the given SQL statement.
-  |||
-  ||| The statement may hold a list of parameters, which will be
-  ||| bound prior to executing the statement.
-  export
-  commit : DB => ParamStmt -> App es ()
-  commit st = withBoundStmt st (ignore step)
-
   ||| Prepares and executes the given SQL query and extracts up to
   ||| `n` rows of results.
   export
@@ -93,11 +99,6 @@ withStmt str f = do
 --------------------------------------------------------------------------------
 -- Runnings Commands
 --------------------------------------------------------------------------------
-
-  ||| Executes the given SQL command.
-  export %inline
-  cmd : DB => Cmd t -> App es ()
-  cmd = commit . encodeCmd
 
   rollback : DB => HSum es -> App es a
   rollback x = ignore (withStmt "ROLLBACK TRANSACTION" step) >> fail x

@@ -31,6 +31,9 @@ clean :
 
 .PHONY: install
 
+install-node:
+	npm i sqlite3
+
 install:
 	mkdir -p $(INSTALLDIR)
 	install $(TARGET) $(wildcard *.h) $(INSTALLDIR)
