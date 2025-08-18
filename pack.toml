@@ -9,6 +9,11 @@ type   = "local"
 path   = "sqlite3-rio"
 ipkg   = "sqlite3-rio.ipkg"
 
+[custom.all.sqlite3-node]
+type   = "local"
+path   = "sqlite3-node"
+ipkg   = "sqlite3-node.ipkg"
+
 [custom.all.sqlite3-docs]
 type   = "local"
 path   = "docs"
