@@ -11,10 +11,10 @@ import Node.FFI
 import System
 
 export
-data DBNode : Type where [external]
+data DB : Type where [external]
 
 export
-data StmtNode : Type where [external]
+data Stmt : Type where [external]
 
 %foreign """
     node:lambda: (name) => {
@@ -22,35 +22,35 @@ data StmtNode : Type where [external]
       return new Database(name);
     }
     """
-node__sqlite_open : (path : String) -> PrimIO DBNode
+node__sqlite_open : (path : String) -> PrimIO DB
 
 export
 sqlite_open :
-    (path : String) -> IO DBNode
+    (path : String) -> IO DB
 sqlite_open path = primIO $ node__sqlite_open path
 
 %foreign """
     node:lambda:(db) => db.close()
     """
-node__sqlite_close : DBNode -> PrimIO ()
+node__sqlite_close : DB -> PrimIO ()
 
 export
-sqlite_close : DBNode -> IO ()
+sqlite_close : DB -> IO ()
 sqlite_close db =
   primIO $ node__sqlite_close db
 
 %foreign """
     node:lambda: (db, stmt) => db.prepare(stmt);
     """
-node__sqlite_prepare : DBNode -> String -> PrimIO StmtNode
+node__sqlite_prepare : DB -> String -> PrimIO Stmt
 
 export
-sqlite_prepare : (db :DBNode) => String -> IO StmtNode
+sqlite_prepare : (db :DB) => String -> IO Stmt
 sqlite_prepare stmt = primIO $ node__sqlite_prepare db stmt
 
 
 %foreign "node:lambda: (db, stmt, params) => stmt.bind(params)"
-node__bind_all : DBNode -> StmtNode -> JSArray -> PrimIO StmtNode
+node__bind_all : DB -> Stmt -> JSArray -> PrimIO Stmt
 
 byteStringGetBuffer : ByteString -> Buffer
 byteStringGetBuffer (BS size (BV buf offset lte)) = unsafePerformIO $ do
@@ -69,10 +69,10 @@ paramsToJS = map ?paramsToJS_rhs
     param2JS (P name REAL value) = double_to_JS value
 
 total export
-bindParams : (db : DBNode) => (stmt : StmtNode) => List Parameter -> IO StmtNode
+bindParams : (db : DB) => (stmt : Stmt) => List Parameter -> IO Stmt
 bindParams ps = primIO $ node__bind_all db stmt (list2JS $ paramsToJS ps)
 
 export
-bindParam : DBNode => (s : StmtNode) => Parameter -> IO StmtNode
+bindParam : DB => (s : Stmt) => Parameter -> IO Stmt
 bindParam p = bindParams [p]
 

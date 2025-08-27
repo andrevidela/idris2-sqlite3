@@ -1,6 +1,6 @@
 module Main
 
-import Control.RIO.Sqlite3
+import Control.Node.Sqlite3
 import Data.Buffer.Indexed
 import Data.ByteString
 import Data.List.Quantifiers

@@ -12,6 +12,7 @@ depends = sqlite3
 sourcedir = "src"
 
 modules = Control.Node.Sqlite3
+        , Node.FFI.Sqlite3
 
 main = Test
 
