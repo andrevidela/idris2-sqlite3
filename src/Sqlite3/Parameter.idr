@@ -260,6 +260,10 @@ encodeCmd (UPDATE t vs wh) = do
 encodeCmd (DELETE t wh) = do
   xstr <- encodeExprP wh
   pure "DELETE FROM \{t.name} WHERE \{xstr};"
+encodeCmd (RETURNING lhs cs) = do
+  cmd <- encodeCmd lhs
+  sel <- namedExprs [<] cs
+  pure "\{cmd} RETURNING \{sel};"
 
 joinPred : JoinPred s t -> ParamStmt
 joinPred (Left u)  = pure "USING (\{commaSep name u})"

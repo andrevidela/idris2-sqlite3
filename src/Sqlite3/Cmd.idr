@@ -112,6 +112,9 @@ data CmdType : Type where
   TInsert : CmdType
   TSelect : CmdType
   TUpdate : CmdType
+  TReturning : Type -> CmdType
+
+record NamedExpr (s : Schema) (t : SqliteType)
 
 ||| Data management commands for creating tables and
 ||| inserting, updating, or deleting rows in a table.
@@ -171,6 +174,15 @@ data Cmd : CmdType -> Type where
        (t      : SQLTable)
     -> (where_ : Expr [<t] BOOL)
     -> Cmd TDelete
+
+  RETURNING :
+       {s : _}
+    -> {t           : Type}
+    -> {auto fromRow : FromRow t}
+    -> Cmd p
+    -> (check : Any (=== p) [TUpdate, TInsert])
+    => LAll (NamedExpr s) (FromRowTypes t)
+    -> Cmd (TReturning t)
 
 ||| Utility version of `INSERT` for those cases when you want to
 ||| insert an Idris value with a `ToRow` implementation.
